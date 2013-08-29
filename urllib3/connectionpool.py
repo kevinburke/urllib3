@@ -314,7 +314,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
                         % self.host)
 
         # Connection never got put back into the pool, close it.
-        conn.close()
+        if conn:
+            conn.close()
 
     def _get_timeout(self, timeout):
         """ Helper that always returns a :class:`urllib3.util.Timeout` """
