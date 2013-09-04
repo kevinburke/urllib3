@@ -50,6 +50,14 @@ class Timeout(object):
     """
     Utility object for storing timeout values.
 
+    Example usage:
+
+    .. code-block:: python
+
+        timeout = util.Timeout(connect=2, read=7)
+        pool = HTTPConnectionPool('www.google.com', 80, timeout=timeout)
+        pool.request(...) # Etc, etc
+
     :param connect:
         The maximum amount of time to wait for a connection attempt to a server
         to succeed. Omitting the parameter will default the connect timeout to
@@ -60,11 +68,13 @@ class Timeout(object):
     :type connect: integer, float, or None
 
     :param read:
-        The maximum amount of time to wait for the server to return a HTTP
-        response. Omitting the parameter will default the read timeout to the
-        system default, probably `the global default timeout in socket.py
-        <http://hg.python.org/cpython/file/603b4d593758/Lib/socket.py#l535>`.
+        The maximum amount of time to wait between consecutive
+        read operations for a response from the server. Omitting
+        the parameter will default the read timeout to the system
+        default, probably `the global default timeout in socket.py
+        <http://hg.python.org/cpython/file/603b4d593758/Lib/socket.py#l535>`_.
         None will set an infinite timeout.
+
     :type read: integer, float, or None
 
     :param total:
@@ -73,13 +83,22 @@ class Timeout(object):
         event that both a connect timeout and a total are specified, or a read
         timeout and a total are specified, the shorter timeout will be applied.
 
-        **Note:** that many factors can affect the total amount of time for urllib3
-        to return an HTTP response, including a misbehaving DNS server, high
-        load on the box, high swap, the program running at a low priority level,
-        or other behaviors, so the observed running time for urllib3 to return a
-        response may be greater than the value passed to `total`.
-
         Defaults to None.
+
+    **Note:** many factors can affect the total amount of time for urllib3
+    to return an HTTP response, including a misbehaving DNS server, high
+    load on the box, high swap, the program running at a low priority level,
+    or other behaviors, so the observed running time for urllib3 to return a
+    response may be greater than the value passed to `total`.
+
+    In addition, the read and total timeouts only measure the time between read
+    operations on the socket connecting the client and the server, not the total
+    amount of time for the request to return a complete response. As an example,
+    you may want a request to return within 7 seconds or fail, so you set the
+    ``total`` timeout to 7 seconds. If the server sends one byte to you every 5
+    seconds, the request will **not** trigger time out. This case is admittedly
+    rare.
+
     :type total: integer, float, or None
     """
 
@@ -125,7 +144,7 @@ class Timeout(object):
         """ Create a new Timeout from a legacy timeout value.
 
         The timeout value used by httplib.py sets the same timeout on the
-        connect(), and recv() socket requests. This creates a :class:Timeout
+        connect(), and recv() socket requests. This creates a :class:`Timeout`
         object that sets the individual timeouts to the ``timeout`` value passed
         to this function.
 
@@ -170,7 +189,7 @@ class Timeout(object):
     def start_connect(self):
         """ Start the timeout clock, used during a connect() attempt
 
-        :raises `urllib3.exceptions.TimeoutStateError`: if you attempt
+        :raises urllib3.exceptions.TimeoutStateError: if you attempt
             to start a timer that has been started already.
         """
         if self._start_connect is not None:
@@ -180,11 +199,11 @@ class Timeout(object):
 
 
     def get_connect_duration(self):
-        """ Gets the time elapsed since the call to start_connect().
+        """ Gets the time elapsed since the call to :meth:`start_connect`.
 
         :return: the elapsed time
         :rtype: float
-        :raises `urllib3.exceptions.TimeoutStateError`: if you attempt
+        :raises urllib3.exceptions.TimeoutStateError: if you attempt
             to get duration for a timer that hasn't been started.
         """
         if self._start_connect is None:
@@ -220,13 +239,13 @@ class Timeout(object):
 
         If self.total is set, the read timeout is dependent on the amount of
         time taken by the connect timeout. If the connection time has not been
-        established, a :exc:`urllib3.exceptions.TimeoutStateError` will be
+        established, a :exc:`~urllib3.exceptions.TimeoutStateError` will be
         raised.
 
         :return: the value to use for the read timeout
         :rtype: int, float, :attr:`Timeout.DEFAULT_TIMEOUT` or None
-        :raises urllib3.exceptions.TimeoutStateError: If start_connect has not
-            yet been called on this object.
+        :raises urllib3.exceptions.TimeoutStateError: If :meth:`start_connect`
+            has not yet been called on this object.
         """
         if (self.total is not None and
             self.total is not self.DEFAULT_TIMEOUT and
