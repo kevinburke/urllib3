@@ -34,6 +34,14 @@ class RequestError(PoolError):
         return self.__class__, (None, self.url, None)
 
 
+## Leaf Exceptions
+
+class ConnectionError(RequestError):
+    " Raised when the connection to the host fails "
+    def __init__(self, pool, url, message, errno):
+        self.errno = errno
+        RequestError.__init__(self, pool, url, message)
+
 class SSLError(HTTPError):
     "Raised when SSL certificate fails in an HTTPS connection."
     pass
@@ -48,8 +56,6 @@ class DecodeError(HTTPError):
     "Raised when automatic decoding based on Content-Type fails."
     pass
 
-
-## Leaf Exceptions
 
 class MaxRetryError(RequestError):
     "Raised when the maximum number of retries is exceeded."

@@ -20,6 +20,7 @@ except ImportError:
 from .exceptions import (
     ClosedPoolError,
     ConnectTimeoutError,
+    ConnectionError,
     EmptyPoolError,
     HostChangedError,
     MaxRetryError,
@@ -281,7 +282,7 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             timeout_obj.start_connect()
             conn.timeout = timeout_obj.connect_timeout
             # conn.request() calls httplib.*.request, not the method in
-            # urllib3.request. It also calls makefile (recv) on the socket.
+            # urllib3.request. It also calls connect() on the socket.
             conn.request(method, url, **httplib_request_kw)
         except SocketTimeout:
             raise ConnectTimeoutError(
@@ -307,7 +308,8 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             else: # None or a value
                 conn.sock.settimeout(read_timeout)
 
-        # Receive the response from the server
+        # Receive the response from the server. This corresponds to makefile
+        # (recv) in httplib.py
         try:
             try: # Python 2.7+, use buffering of HTTP responses
                 httplib_response = conn.getresponse(buffering=True)
@@ -511,6 +513,9 @@ class HTTPConnectionPool(ConnectionPool, RequestMethods):
             if isinstance(e, SocketError) and self.proxy is not None:
                 raise ProxyError('Cannot connect to proxy. '
                                  'Socket error: %s.' % e)
+
+            #if isinstance(e, SocketError):
+                #raise ConnectionError(self, url, e.message, e.errno)
 
             # Connection broken, discard. It will be replaced next _get_conn().
             conn = None

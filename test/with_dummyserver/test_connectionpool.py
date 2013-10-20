@@ -504,5 +504,10 @@ class TestConnectionPool(HTTPDummyServerTestCase):
             pool.request('GET', '/test', retries=2)
 
 
+    def test_connection_refused(self):
+        # fuck
+        pool = HTTPConnectionPool('127.0.0.1', '6668')
+        pool.request('GET', '/')
+
 if __name__ == '__main__':
     unittest.main()
