@@ -108,3 +108,4 @@ Contributing
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and published.
    :) Make sure to add yourself to ``CONTRIBUTORS.txt``.
+
