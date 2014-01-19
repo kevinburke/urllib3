@@ -23,7 +23,8 @@ def requires_network(test):
     """Helps you skip tests that require the network"""
 
     def _is_unreachable_err(err):
-        return getattr(err, 'errno', None) in (errno.ENETUNREACH,
+        return getattr(err, 'errno', None) in (errno.ENOEXEC,
+                                               errno.ENETUNREACH,
                                                errno.EHOSTUNREACH) # For OSX
 
     @functools.wraps(test)
@@ -40,8 +41,7 @@ def requires_network(test):
                 raise SkipTest(msg)
             raise
         except MaxRetryError as e:
-            if (isinstance(e.reason, socket.error) and
-                _is_unreachable_err(e.reason)):
+            if _is_unreachable_err(e.reason):
                 raise SkipTest(msg)
             raise
     return wrapper

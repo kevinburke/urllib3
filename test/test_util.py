@@ -4,12 +4,12 @@ import unittest
 from mock import patch
 
 from urllib3 import add_stderr_logger
-from urllib3.util import (
+from urllib3.util.response import make_headers
+from urllib3.util.timeout import Timeout
+from urllib3.util.url import (
     get_host,
-    make_headers,
-    split_first,
     parse_url,
-    Timeout,
+    split_first,
     Url,
 )
 from urllib3.exceptions import LocationParseError, TimeoutStateError

@@ -2,7 +2,6 @@ from collections import namedtuple
 
 from ..exceptions import LocationParseError
 
-
 class Url(namedtuple('Url', ['scheme', 'auth', 'host', 'port', 'path', 'query', 'fragment'])):
     """
     Datastructure for representing an HTTP URL. Used as a return value for

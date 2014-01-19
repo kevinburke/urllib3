@@ -12,7 +12,7 @@ import io
 from ._collections import HTTPHeaderDict
 from .exceptions import DecodeError
 from .packages.six import string_types as basestring, binary_type
-from .util import is_fp_closed
+from .util.response import is_fp_closed
 
 
 log = logging.getLogger(__name__)

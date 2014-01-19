@@ -12,13 +12,12 @@ from dummyserver.server import DEFAULT_CA, DEFAULT_CA_BAD, DEFAULT_CERTS
 from test import requires_network
 
 from urllib3 import HTTPSConnectionPool
-import urllib3.connection
 from urllib3.connection import (
     VerifiedHTTPSConnection,
     UnverifiedHTTPSConnection,
 )
 from urllib3.exceptions import SSLError, ConnectTimeoutError, ReadTimeoutError
-from urllib3.util import Timeout
+from urllib3.util.timeout import Timeout
 
 
 log = logging.getLogger('urllib3.connectionpool')
@@ -121,14 +120,14 @@ class TestHTTPS(HTTPSDummyServerTestCase):
     @requires_network
     def test_ssl_verified_with_platform_ca_certs(self):
         """
-        This test check that whe rely on platform CA file to validate
-        authenticity of SSL certificate. Since this file is used by many
+        This test checks that we rely on the platform CA file to validate
+        authenticity of SSL certificates. Since this file is used by many
         components of the OS, such as curl, apt-get, etc., we decided to not
         touch it, in order to not compromise the security of the OS
         running the test suite (typically urllib3 developer's OS).
 
-        This test assume that httpbin.org use a certificate signed
-        by a well known Certificate Authority.
+        This test assumes that httpbin.org use a certificate signed by a well
+        known Certificate Authority.
         """
         try:
             import urllib3.contrib.pyopenssl
