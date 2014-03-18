@@ -163,7 +163,7 @@ class Retry(object):
     def __init__(self, total=None, connect=3, read=0, redirects=3,
                  observed_errors=0, method_whitelist=DEFAULT_METHOD_WHITELIST,
                  codes_whitelist=None, backoff_factor=0,
-                 raise_on_redirect=True):
+                 raise_on_redirect=True, retry_callable=None):
 
         # If it's None, the bottleneck becomes the specified sub-limits.
         self.total = total
@@ -175,8 +175,16 @@ class Retry(object):
         self.method_whitelist = method_whitelist
         self.backoff_factor = backoff_factor
         self.raise_on_redirect = raise_on_redirect
-
         self.observed_errors = observed_errors
+
+        if retry_callable is None:
+            def default_retry(method, response=None):
+                return (method in self.method_whitelist
+                        and response
+                        and response.status in self.codes_whitelist)
+            self.retry_callable = default_retry
+        else:
+            self.retry_callable = retry_callable
 
     def _compute_backoff(self):
         """ Formula for computing the current backoff
@@ -251,7 +259,7 @@ class Retry(object):
             redirects = self.redirects
 
         if (isinstance(error, self.READ_EXCEPTIONS)
-            or self.should_retry_response(method, response)
+            or self.retry_callable(method, response)
             or not incremented):
             read = self.read - 1
             observed_errors = self.observed_errors + 1
@@ -260,29 +268,11 @@ class Retry(object):
 
         return Retry(
             total=self.total, connect=connect, read=read,
-            redirects=redirects, method_whitelist=self.method_whitelist,
-            codes_whitelist=self.codes_whitelist,
+            redirects=redirects, retry_callable=self.retry_callable,
             backoff_factor=self.backoff_factor,
             observed_errors=observed_errors,
             raise_on_redirect=self.raise_on_redirect,
         )
-
-    def should_retry_response(self, request_method, response):
-        """ Determine if an HTTP response is an error response.
-
-        Checks the response against the method whitelist and the status code
-        whitelist. If the method and the code are in the whitelist, returns
-        True.
-
-        :param str request_method: The HTTP method used for the request
-        :param response: The HTTP response object
-        :type response: :class:`~urllib.response.HTTPResponse`
-
-        :rtype: bool
-        """
-        return (response is not None
-                and request_method in self.method_whitelist
-                and response.status in self.codes_whitelist)
 
     def is_exhausted(self):
         """ Determine whether we're out of retry attempts
@@ -294,7 +284,6 @@ class Retry(object):
 
         :rtype: bool
         """
-
         if self.total is not None and self.total < 0:
             return True
         return min(self.connect, self.read, self.redirects) < 0

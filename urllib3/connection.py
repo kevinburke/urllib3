@@ -158,6 +158,9 @@ class VerifiedHTTPSConnection(HTTPSConnection):
                 timeout=self.timeout,
             )
         except SocketTimeout:
+            # Note: it's difficult to test this logic without a network
+            # connection, as the underlying machine usually throws ENETUNREACH
+            # or EHOSTUNREACH immediately.
             raise ConnectTimeoutError(
                 self, "Connection to %s timed out. (connect timeout=%s)" %
                 (self.host, self.timeout))
