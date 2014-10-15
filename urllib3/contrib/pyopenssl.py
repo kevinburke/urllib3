@@ -278,6 +278,11 @@ def ssl_wrap_socket(sock, keyfile=None, certfile=None, cert_reqs=None,
     OP_NO_COMPRESSION = 0x20000
     ctx.set_options(OP_NO_COMPRESSION)
 
+    OP_NO_SSL_V2 = 0x1000000
+    OP_NO_SSL_V3 = 0x2000000
+    ctx.set_options(OP_NO_SSL_V2)
+    ctx.set_options(OP_NO_SSL_V3)
+
     # Set list of supported ciphersuites.
     ctx.set_cipher_list(DEFAULT_SSL_CIPHER_LIST)
 

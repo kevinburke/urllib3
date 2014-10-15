@@ -80,6 +80,8 @@ def resolve_ssl_version(candidate):
     like resolve_cert_reqs
     """
     if candidate is None:
+        # This is insecure, but many machines lack the ability to perform higher
+        # levels of SSL verification.
         return PROTOCOL_SSLv23
 
     if isinstance(candidate, str):
@@ -108,6 +110,11 @@ if SSLContext is not None:  # Python 3.2+
         # Disable TLS compression to migitate CRIME attack (issue #309)
         OP_NO_COMPRESSION = 0x20000
         context.options |= OP_NO_COMPRESSION
+
+        OP_NO_SSL_V2 = 0x1000000
+        OP_NO_SSL_V3 = 0x2000000
+        context.options |= OP_NO_SSL_V2
+        context.options |= OP_NO_SSL_V3
 
         if ca_certs:
             try:
