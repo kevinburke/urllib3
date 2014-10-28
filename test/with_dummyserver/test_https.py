@@ -7,6 +7,7 @@ import warnings
 
 import mock
 from nose.plugins.skip import SkipTest
+import six
 
 from dummyserver.testcase import HTTPSDummyServerTestCase
 from dummyserver.server import DEFAULT_CA, DEFAULT_CA_BAD, DEFAULT_CERTS
@@ -15,7 +16,6 @@ from test import (
     onlyPy26OrOlder,
     requires_network,
     TARPIT_HOST,
-    clear_warnings,
 )
 from urllib3 import HTTPSConnectionPool
 from urllib3.connection import (
@@ -331,6 +331,8 @@ class TestHTTPS(HTTPSDummyServerTestCase):
     def test_ssl_correct_system_time(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
+            if six.PY3:
+                warnings.simplefilter('ignore', category=warnings.ResourceWarning)
             self._pool.request('GET', '/')
 
         self.assertEqual([], w)
