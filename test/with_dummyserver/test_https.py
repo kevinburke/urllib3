@@ -37,6 +37,11 @@ log = logging.getLogger('urllib3.connectionpool')
 log.setLevel(logging.NOTSET)
 log.addHandler(logging.StreamHandler(sys.stdout))
 
+try:
+    from warnings import ResourceWarning
+except ImportError:
+    class ResourceWarning(warnings.Warning):
+        pass
 
 
 class TestHTTPS(HTTPSDummyServerTestCase):
@@ -331,8 +336,7 @@ class TestHTTPS(HTTPSDummyServerTestCase):
     def test_ssl_correct_system_time(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
-            if six.PY3:
-                warnings.simplefilter('ignore', category=warnings.ResourceWarning)
+            warnings.simplefilter('ignore', category=ResourceWarning)
             self._pool.request('GET', '/')
 
         self.assertEqual([], w)
