@@ -7,7 +7,6 @@ import warnings
 
 import mock
 from nose.plugins.skip import SkipTest
-import six
 
 from dummyserver.testcase import HTTPSDummyServerTestCase
 from dummyserver.server import DEFAULT_CA, DEFAULT_CA_BAD, DEFAULT_CERTS
@@ -30,6 +29,7 @@ from urllib3.exceptions import (
     InsecureRequestWarning,
     SystemTimeWarning,
 )
+from urllib3.packages import six
 from urllib3.util.timeout import Timeout
 
 
