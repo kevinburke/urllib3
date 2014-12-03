@@ -33,6 +33,7 @@ clean:
 	rm -rf docs/_build
 
 test: requirements
+	pip freeze
 	nosetests
 
 test-all: requirements

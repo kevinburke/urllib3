@@ -385,8 +385,7 @@ class TestHTTPS_NoSAN(HTTPSDummyServerTestCase):
     certs = NO_SAN_CERTS
 
     def test_warning_for_certs_without_a_san(self):
-        """Ensure that a warning is raised when the cert from the server has
-        no Subject Alternative Name."""
+        """A warning should be raised if server cert has no SAN."""
         with mock.patch('warnings.warn') as warn:
             https_pool = HTTPSConnectionPool(self.host, self.port,
                                              cert_reqs='CERT_REQUIRED',
