@@ -34,6 +34,7 @@ clean:
 
 test: requirements
 	pip freeze
+	openssl version
 	nosetests
 
 test-all: requirements
