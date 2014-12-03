@@ -35,6 +35,7 @@ clean:
 test: requirements
 	pip freeze
 	openssl version
+	python --version
 	nosetests
 
 test-all: requirements
